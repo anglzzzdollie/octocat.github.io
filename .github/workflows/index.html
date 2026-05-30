@@ -1,43 +1,238 @@
-# Simple workflow for deploying static content to GitHub Pages
-name: Deploy static content to Pages
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>hello, 18 💗</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
 
-on:
-  # Runs on pushes targeting the default branch
-  push:
-    branches: ["main"]
+    <div id="loading">
+        <img id="loading-gif" src="hellokitty.gif" alt="loading gif">
+        <h2>Loading...</h2>
+    </div>
 
-  # Allows you to run this workflow manually from the Actions tab
-  workflow_dispatch:
+    <div id="main-content">
 
-# Sets permissions of the GITHUB_TOKEN to allow deployment to GitHub Pages
-permissions:
-  contents: read
-  pages: write
-  id-token: write
+        <div class="card">
+            <h1>Deixe seu carinho 💗</h1>
+            <p>Cada recadinho deixa meu dia especial</p>
+        </div>
 
-# Allow only one concurrent deployment, skipping runs queued between the run in-progress and latest queued.
-# However, do NOT cancel in-progress runs as we want to allow these production deployments to complete.
-concurrency:
-  group: "pages"
-  cancel-in-progress: false
+        <div class="card">
+            <h2>Deixe um recado</h2>
+            <input id="guestName" placeholder="Seu nome">
+            <textarea id="guestMessage" placeholder="Escreva algo especial..."></textarea>
+            <button onclick="sendMessage()">Enviar</button>
+            <div id="messagesContainer"></div>
+        </div>
 
-jobs:
-  # Single deploy job since we're just deploying
-  deploy:
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-      - name: Setup Pages
-        uses: actions/configure-pages@v5
-      - name: Upload artifact
-        uses: actions/upload-pages-artifact@v3
-        with:
-          # Upload entire repository
-          path: '.'
-      - name: Deploy to GitHub Pages
-        id: deployment
-        uses: actions/deploy-pages@v5
+        <div class="card">
+            <h2>Convite Especial</h2>
+            <p id="texto-carta" class="convite-texto">
+                
+                <br>
+                Oiêê 💗
+                <br>
+                Se você chegou até aqui, já ganhou um espacinho muito especial no meu coração.
+                Esse site foi feito com carinho para guardar memórias, recadinhos e um pedacinho dessa fase tão importante da minha vida: meus 18 anos...<br>
+                Cada pessoa presente faz parte da minha história de alguma forma, e ter vocês comemorando comigo torna tudo ainda mais inesquecível.<br>
+                Espero que esse dia seja leve, divertido e cheio de momentos especiais pra guardar na memória.
+                Obrigada por cada abraço, mensagem, carinho e por fazer parte do meu universo.
+                Que essa nova fase venha cheia de sonhos, música, felicidade e pessoas incríveis ao meu redor.
+                
+                <br>
+
+                Com amor, Rebeca 💕
+
+                <br>
+
+                📞 Contato (caso precise):
+                
+                <br>
+
+                WhatsApp: (11) 98904-7453
+                
+                <br>
+
+                Instagram: @ik1ttyou
+
+                <br>
+                ✨ ATENÇÃO: abaixo você poderá acompanhar minha linha do tempo — uma pequena viagem desde os meus primeiros momentos até a versão de hoje 💗
+            </p>
+
+            <img src="convite.jpeg" id="convite-img" class="convite-jpeg" alt="convite de aniversário">
+        </div>
+
+        <div id="carousel" class="card">
+            <h2>Linha do Tempo</h2>
+            <div class="carousel-container">
+                <button class="btn-carousel" onclick="fotoAnterior()">❮</button>
+                <img id="carousel-img" src="foto1.jpeg" alt="foto 1">
+                <button class="btn-carousel" onclick="fotoProxima()">❯</button>
+            </div>
+        </div>
+
+    </div>
+
+    <div id="admin-icon">
+        <img src="https://img.icons8.com/color/48/hello-kitty.png" alt="Admin Icon">
+    </div>
+
+    <div id="admin-panel">
+        <div class="close-admin" onclick="fecharAdmin()">✖</div>
+        <h2>🎀 Painel Admin 🎀</h2>
+
+        <div class="admin-card">
+            <h3>Editar Carta</h3>
+            <textarea id="admin-carta" placeholder="Edite o texto da carta aqui..."></textarea>
+            <button onclick="salvarCarta()">Salvar Carta</button>
+        </div>
+
+        <div class="admin-card">
+            <h3>Mensagens Recebidas</h3>
+            <div id="admin-mensagens"></div>
+        </div>
+    </div>
+
+    <script>
+        /* LOADING */
+        window.onload = function() {
+            setTimeout(function() {
+                document.getElementById("loading").style.display = "none";
+                document.getElementById("main-content").classList.add("show-main");
+            }, 2500);
+            mostrar();
+            carregarCartaSalva();
+        };
+
+        /* ELEMENTOS */
+        const adminIcon = document.getElementById("admin-icon");
+        const adminPanel = document.getElementById("admin-panel");
+        const adminMensagens = document.getElementById("admin-mensagens");
+        const textoCarta = document.getElementById("texto-carta");
+        const adminCartaInput = document.getElementById("admin-carta");
+
+        /* LOGIN DO ADMIN */
+        adminIcon.onclick = function() {
+            let senha = prompt("Senha admin:");
+            if (senha === "kitty_2008") {
+                adminPanel.style.display = "block";
+                carregarMensagensAdmin();
+                adminCartaInput.value = textoCarta.innerHTML.replace(/<br\s*\/?>/mg, "\n");
+            } else {
+                alert("Senha Incorreta! ❌");
+            }
+        };
+
+        function fecharAdmin() {
+            adminPanel.style.display = "none";
+        }
+
+        /* SISTEMA DE RECADOS */
+        function sendMessage() {
+            const nome = document.getElementById("guestName").value;
+            const mensagem = document.getElementById("guestMessage").value;
+
+            if (nome.trim() === "" || mensagem.trim() === "") {
+                alert("Preencha tudo 💗");
+                return;
+            }
+
+            let mensagens = JSON.parse(localStorage.getItem("mensagens")) || [];
+            mensagens.push({ nome: nome, mensagem: mensagem });
+            localStorage.setItem("mensagens", JSON.stringify(mensagens));
+
+            document.getElementById("guestName").value = "";
+            document.getElementById("guestMessage").value = "";
+            
+            mostrar();
+            if (adminPanel.style.display === "block") carregarMensagensAdmin();
+        }
+
+        function mostrar() {
+            let mensagens = JSON.parse(localStorage.getItem("mensagens")) || [];
+            let container = document.getElementById("messagesContainer");
+            container.innerHTML = "";
+
+            // Clona e inverte para mostrar as mais recentes primeiro
+            [...mensagens].reverse().forEach(function(msg) {
+                container.innerHTML += `
+                    <div class="message">
+                        <h3>${msg.nome}</h3>
+                        <p>${msg.mensagem}</p>
+                    </div>
+                `;
+            });
+        }
+
+        /* FUNÇÕES DE GERENCIAMENTO DO ADMIN */
+        function carregarMensagensAdmin() {
+            let mensagens = JSON.parse(localStorage.getItem("mensagens")) || [];
+            adminMensagens.innerHTML = "";
+            
+            if(mensagens.length === 0) {
+                adminMensagens.innerHTML = "<p>Nenhuma mensagem ainda.</p>";
+                return;
+            }
+
+            mensagens.forEach(function(msg, index) {
+                adminMensagens.innerHTML += `
+                    <div class="admin-msg-item" style="border-bottom: 1px solid #ffccd5; padding: 5px 0;">
+                        <strong>${msg.nome}:</strong> ${msg.mensagem} 
+                        <button onclick="deletarMensagem(${index})" style="background:#ff4d6d; padding:2px 5px; font-size:12px;">Excluir</button>
+                    </div>
+                `;
+            });
+        }
+
+        function deletarMensagem(index) {
+            let mensagens = JSON.parse(localStorage.getItem("mensagens")) || [];
+            mensagens.splice(index, 1);
+            localStorage.setItem("mensagens", JSON.stringify(mensagens));
+            carregarMensagensAdmin();
+            mostrar();
+        }
+
+        function salvarCarta() {
+            const novoTexto = adminCartaInput.value.replace(/\n/g, "<br>");
+            localStorage.setItem("cartaTexto", novoTexto);
+            textoCarta.innerHTML = novoTexto;
+            alert("Carta atualizada com sucesso! ✨");
+        }
+
+        function carregarCartaSalva() {
+            const cartaSalva = localStorage.getItem("cartaTexto");
+            if (cartaSalva) {
+                textoCarta.innerHTML = cartaSalva;
+            }
+        }
+
+        /* CARROSSEL */
+        let fotos = [
+            "foto1.jpeg", "foto2.jpeg", "foto3.jpeg", "foto4.jpeg", "foto5.jpeg",
+            "foto6.jpeg", "foto7.jpeg", "foto8.jpeg", "foto9.jpeg", "foto10.jpeg",
+            "foto11.jpeg", "foto12.jpeg", "foto13.jpeg", "foto14.jpeg", "foto15.jpeg",
+            "foto16.jpeg", "foto17.jpeg", "foto18.webp"
+        ];
+        let atual = 0;
+
+        function fotoProxima() {
+            atual++;
+            if (atual >= fotos.length) {
+                atual = 0;
+            }
+            document.getElementById("carousel-img").src = fotos[atual];
+        }
+
+        function fotoAnterior() {
+            atual--;
+            if (atual < 0) {
+                atual = fotos.length - 1;
+            }
+            document.getElementById("carousel-img").src = fotos[atual];
+        }
+    </script>
+</body>
+</html>
